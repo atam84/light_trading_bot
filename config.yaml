@@ -1,0 +1,289 @@
+# config.yaml
+# Trading Bot Application Configuration
+
+app:
+  name: "Light Trading Bot"
+  version: "0.1.0"
+  description: "Multi-interface cryptocurrency trading bot"
+  
+trading:
+  # Supported trading modes
+  modes:
+    - live
+    - paper
+    - backtest
+  
+  # Default trading mode
+  default_mode: paper
+  
+  # Supported exchanges via ccxt-gateway
+  supported_exchanges:
+    - kucoin
+    - binance
+    - okx
+    - bybit
+  
+  # Supported timeframes
+  timeframes:
+    - 1m
+    - 5m
+    - 15m
+    - 30m
+    - 1h
+    - 4h
+    - 8h
+    - 1d
+    - 1w
+  
+  # Default settings
+  defaults:
+    exchange: kucoin
+    quote_currency: USDT
+    timeframe: 4h
+    fee_rate: 0.0005
+
+risk_management:
+  # Global limits
+  global_balance_limit: 0.5  # 50% of total balance
+  per_trade_budget: 100      # USD per trade
+  max_concurrent_trades: 10
+  max_trades_per_symbol: 2
+  
+  # Risk parameters
+  default_stop_loss: 0.05    # 5%
+  default_take_profit: 0.15  # 15%
+  trailing_stop_enabled: true
+  emergency_stop_enabled: false
+  
+  # Position sizing
+  position_sizing_method: "fixed"  # fixed, percentage, volatility
+  max_position_size: 0.1    # 10% of portfolio per position
+
+strategies:
+  # Available strategy types
+  types:
+    - simple_buy_sell
+    - grid_trading
+    - indicator_based
+    - custom
+  
+  # Default strategy parameters
+  defaults:
+    timeframe: 4h
+    lookback_period: 24
+    
+  # Built-in strategies configuration
+  simple_buy_sell:
+    buy_threshold: -5.0      # % below recent high
+    sell_threshold: 10.0     # % above buy price
+    lookback_hours: 24
+    
+  grid_trading:
+    grid_levels: 10
+    grid_spacing: 1.0        # % between levels
+    upper_limit_offset: 10.0 # % above current price
+    lower_limit_offset: 10.0 # % below current price
+    
+  indicator_based:
+    supported_indicators:
+      - RSI
+      - MACD
+      - MA
+      - EMA
+      - BOLLINGER_BANDS
+      - STOCHASTIC
+    
+    default_params:
+      rsi_period: 14
+      rsi_oversold: 30
+      rsi_overbought: 70
+      ma_fast: 12
+      ma_slow: 26
+      macd_signal: 9
+
+backtesting:
+  # Default backtesting parameters
+  initial_balance: 10000
+  commission: 0.0005
+  slippage: 0.0002
+  
+  # Historical data limits
+  max_history_days: 365
+  min_history_days: 30
+  
+  # Performance metrics to calculate
+  metrics:
+    - total_return
+    - sharpe_ratio
+    - sortino_ratio
+    - max_drawdown
+    - win_rate
+    - profit_factor
+    - calmar_ratio
+
+paper_trading:
+  # Paper trading simulation settings
+  initial_balance: 10000
+  realistic_execution: true
+  fee_simulation: true
+  slippage_simulation: true
+  partial_fills: true
+  
+  # Execution delays (to simulate real trading)
+  market_order_delay: 0.1    # seconds
+  limit_order_delay: 0.5     # seconds
+
+web_ui:
+  # Web interface configuration
+  theme: dark
+  auto_refresh_interval: 30  # seconds
+  chart_default_timeframe: 4h
+  mobile_breakpoint: 768
+  items_per_page: 50
+  
+  # Dashboard widgets
+  dashboard:
+    widgets:
+      - portfolio_overview
+      - active_trades
+      - recent_signals
+      - performance_chart
+      - trade_history
+    
+    refresh_rates:
+      portfolio: 10            # seconds
+      trades: 5                # seconds
+      charts: 30               # seconds
+
+telegram:
+  # Telegram bot configuration
+  features:
+    - trade_signals
+    - status_updates
+    - manual_trading
+    - emergency_controls
+    - performance_reports
+  
+  # Rate limiting
+  rate_limit:
+    commands_per_minute: 10
+    trades_per_hour: 20
+  
+  # Message settings
+  max_message_length: 4096
+  command_timeout: 30
+  
+  # Notification templates
+  notifications:
+    trade_signal: "🔔 {signal_type} Signal: {symbol}\n📊 Strategy: {strategy}\n💰 Amount: ${amount}\n📈 Price: ${price}"
+    trade_execution: "✅ Trade Executed: {side} {amount} {symbol} at ${price}\n💵 P&L: {pnl}"
+
+cli:
+  # CLI interface configuration
+  colors:
+    success: green
+    warning: yellow
+    error: red
+    info: blue
+  
+  # Output formatting
+  table_style: grid
+  progress_bar: true
+  verbose_logging: false
+
+notifications:
+  # Notification system configuration
+  channels:
+    - telegram
+    - email
+    - web
+  
+  # Notification types
+  types:
+    trade_signals: true
+    execution_confirmations: true
+    backtest_results: true
+    system_alerts: true
+    performance_reports: false
+    error_alerts: true
+  
+  # Notification scheduling
+  performance_report_schedule: "0 9 * * 1"  # Every Monday at 9 AM
+  daily_summary_schedule: "0 18 * * *"      # Every day at 6 PM
+
+cache:
+  # Cache configuration
+  ttl:
+    chart_data: 300          # 5 minutes
+    ticker_data: 30          # 30 seconds
+    balance_data: 60         # 1 minute
+    strategy_results: 3600   # 1 hour
+    user_sessions: 86400     # 24 hours
+  
+  # Cache sizes (Redis)
+  max_memory: "256mb"
+  eviction_policy: "allkeys-lru"
+
+logging:
+  # Logging configuration
+  level: INFO
+  format: json
+  
+  # Component-specific logging
+  components:
+    trading_engine: INFO
+    api_client: DEBUG
+    telegram_bot: INFO
+    web_ui: INFO
+    database: WARNING
+  
+  # Log rotation
+  rotation:
+    max_size: "10MB"
+    backup_count: 5
+    compression: true
+
+security:
+  # Security settings
+  password_requirements:
+    min_length: 8
+    require_uppercase: true
+    require_lowercase: true
+    require_numbers: true
+    require_symbols: false
+  
+  # Session management
+  session_timeout: 3600      # 1 hour
+  max_concurrent_sessions: 3
+  
+  # API security
+  api_key_rotation_days: 90
+  rate_limiting_enabled: true
+  
+  # Two-factor authentication (for future)
+  two_factor_enabled: false
+  two_factor_methods:
+    - email
+    - sms
+    - authenticator
+
+monitoring:
+  # System monitoring
+  health_check_interval: 30  # seconds
+  metrics_collection: true
+  performance_tracking: true
+  
+  # Alerts
+  alerts:
+    high_memory_usage: 80    # %
+    high_cpu_usage: 80       # %
+    failed_trades_threshold: 5
+    api_error_rate_threshold: 10  # %
+
+development:
+  # Development settings
+  debug_mode: false
+  hot_reload: false
+  api_documentation: true
+  test_mode: false
+  mock_apis: false

@@ -1,0 +1,202 @@
+# .gitignore
+# Trading Bot - Git Ignore Configuration
+
+# Environment and Configuration Files
+.env
+.env.local
+.env.production
+.env.staging
+*.env
+config/local.yaml
+config/production.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+pip-selfcheck.json
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Testing
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+htmlcov/
+.cache
+
+# Logging
+logs/
+*.log
+*.log.*
+log/
+
+# Data and Cache
+data/cache/
+data/temp/
+data/exports/
+*.sqlite
+*.db
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+*.old
+backup/
+backups/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# API Keys and Secrets (Extra protection)
+*secret*
+*key*
+*token*
+api_keys.json
+secrets.json
+credentials.json
+
+# Trading Data (Sensitive)
+trades/
+positions/
+balances/
+portfolio/
+trading_history/
+backtest_results/
+*.csv
+*.xlsx
+*.json.gz
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+docker-compose.local.yml
+
+# MongoDB
+dump/
+mongodump/
+
+# Redis
+dump.rdb
+appendonly.aof
+
+# SSL Certificates
+*.pem
+*.crt
+*.key
+*.p12
+*.pfx
+ssl/
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Package files
+*.deb
+*.rpm
+*.dmg
+*.pkg
+*.msi
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Documentation builds
+docs/_build/
+site/
+
+# PyCharm
+.idea/
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Profiling data
+.prof
+
+# Project specific
+# Uncomment if you have custom directories to ignore
+# custom_data/
+# user_configs/
+# private_strategies/

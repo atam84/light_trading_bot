@@ -1,0 +1,173 @@
+{
+  "name": "Trading Bot Dashboard",
+  "short_name": "TradingBot",
+  "description": "Comprehensive cryptocurrency trading bot with backtesting, paper trading, and live trading capabilities",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1f2937",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  
+  "icons": [
+    {
+      "src": "/static/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View portfolio and trading overview",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-dashboard.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Trading",
+      "short_name": "Trading",
+      "description": "Manual trading interface",
+      "url": "/trading",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-trading.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Strategies",
+      "short_name": "Strategies",
+      "description": "Manage trading strategies",
+      "url": "/strategies",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-strategies.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Backtesting",
+      "short_name": "Backtesting",
+      "description": "Run strategy backtests",
+      "url": "/backtesting",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-backtesting.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  
+  "categories": [
+    "finance",
+    "productivity",
+    "business"
+  ],
+  
+  "screenshots": [
+    {
+      "src": "/static/screenshots/desktop-dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Trading Dashboard"
+    },
+    {
+      "src": "/static/screenshots/mobile-dashboard.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile Dashboard"
+    },
+    {
+      "src": "/static/screenshots/desktop-trading.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Trading Interface"
+    },
+    {
+      "src": "/static/screenshots/mobile-trading.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile Trading"
+    }
+  ],
+  
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://trading-bot.example.com/manifest.json"
+    }
+  ],
+  
+  "prefer_related_applications": false,
+  
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  
+  "handle_links": "preferred",
+  
+  "capture_links": "existing-client-navigate"
+}
