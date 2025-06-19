@@ -44,7 +44,7 @@ wait_for_service() {
         fi
         
         log "Attempt $attempt/$max_attempts: $service_name not ready yet..."
-        sleep 2
+        sleep 30
         attempt=$((attempt + 1))
     done
     
@@ -153,11 +153,11 @@ main() {
     fi
     
     if [ -n "$CCXT_GATEWAY_URL" ]; then
-        wait_for_service "ccxt-gateway" "$CCXT_GATEWAY_URL/health" || true
+        wait_for_service "ccxt-gateway" "$CCXT_GATEWAY_URL/ticker?symbol=BTC/USDT" || true
     fi
     
     if [ -n "$QUICKCHART_URL" ]; then
-        wait_for_service "QuickChart" "$QUICKCHART_URL/healthcheck" || true
+        wait_for_service "QuickChart" "$QUICKCHART_URL/ticker?symbol=BTC/USDTcheck" || true
     fi
     
     # Initialize application
