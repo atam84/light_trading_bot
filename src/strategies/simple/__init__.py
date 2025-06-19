@@ -1,0 +1,1 @@
+"""strategies/simple module."""

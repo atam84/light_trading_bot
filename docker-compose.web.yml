@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  trading-bot-web:
+    build: .
+    container_name: trading-bot-web
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017/trading_bot
+      - CCXT_GATEWAY_URL=http://ccxt-bridge:3000
+      - QUICKCHART_URL=http://quickchart:8080
+      - WEB_ONLY=true
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - mongodb
+      - ccxt-bridge
+      - quickchart
+    command: python src/main.py web --port 5000 --host 0.0.0.0
+    restart: unless-stopped

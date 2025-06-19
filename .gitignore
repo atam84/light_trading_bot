@@ -11,6 +11,8 @@
 config/local.yaml
 config/production.yaml
 
+backup_*/
+
 # Python
 __pycache__/
 *.py[cod]
