@@ -1,4 +1,3 @@
-# docker/entrypoint.sh
 #!/bin/bash
 
 # Trading Bot Docker Entrypoint Script
