@@ -157,7 +157,7 @@ main() {
     fi
     
     if [ -n "$QUICKCHART_URL" ]; then
-        wait_for_service "QuickChart" "$QUICKCHART_URL/ticker?symbol=BTC/USDTcheck" || true
+        wait_for_service "QuickChart" "$QUICKCHART_URL/healthcheck" || true
     fi
     
     # Initialize application

@@ -43,7 +43,7 @@ services:
       - ./config:/app/config
     depends_on:
       - mongodb
-      #- ccxt-bridge
+      - ccxt-bridge
       - quickchart
       - redis
     restart: unless-stopped
@@ -81,12 +81,12 @@ services:
     restart: unless-stopped
     networks:
       - trading-network
-    #healthcheck:
-    #  test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-    #  interval: 30s
-    #  timeout: 10s
-    #  retries: 3
-    #  start_period: 10s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/ticker?symbol=BTC/USDT"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   # QuickChart Service
   quickchart:
@@ -99,11 +99,11 @@ services:
     restart: unless-stopped
     networks:
       - trading-network
-    #healthcheck:
-    #  test: ["CMD", "curl", "-f", "http://localhost:3400/healthcheck"]
-    #  interval: 30s
-    #  timeout: 10s
-    #  retries: 3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3400/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Redis Cache (Optional)
   redis:
