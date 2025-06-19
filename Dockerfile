@@ -27,7 +27,8 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+    pip install -r requirements.txt  && \
+    pip install Flask Flask-CORS
 
 # Production stage
 FROM python:3.10-slim as production

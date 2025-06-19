@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}Settings - Trading Bot{% endblock %}
+
+{% block content %}
+<!-- Account Settings -->
+<div class="card">
+    <h2>👤 Account Settings</h2>
+    <form id="account-form">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <label>Username:</label>
+                <input type="text" id="username" value="trader_user" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                
+                <label>Email:</label>
+                <input type="email" id="email" value="user@example.com" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+            </div>
+            
+            <div>
+                <label>Timezone:</label>
+                <select id="timezone" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                    <option value="UTC">UTC</option>
+                    <option value="America/New_York">New York (EST)</option>
+                    <option value="Europe/London">London (GMT)</option>
+                    <option value="Asia/Tokyo">Tokyo (JST)</option>
+                </select>
+                
+                <label>Theme:</label>
+                <select id="theme" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                    <option value="dark" selected>Dark Mode</option>
+                    <option value="light">Light Mode</option>
+                </select>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn" style="background: #238636;">💾 Save Account Settings</button>
+    </form>
+</div>
+
+<!-- Exchange Configuration -->
+<div class="card">
+    <h2>🏢 Exchange Configuration</h2>
+    
+    <div style="margin-bottom: 20px;">
+        <h3 style="color: #58a6ff; margin-bottom: 15px;">Connected Exchanges</h3>
+        
+        <div style="border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="color: #f0f6fc; margin-bottom: 5px;">🏦 KuCoin</h4>
+                    <p style="font-size: 14px; color: #7d8590;">Status: <span class="status running">CONNECTED</span></p>
+                    <p style="font-size: 14px; color: #7d8590;">Mode: Paper Trading</p>
+                </div>
+                <div>
+                    <button class="btn" onclick="configureExchange('kucoin')" style="margin-right: 10px;">⚙️ Configure</button>
+                    <button class="btn danger" onclick="disconnectExchange('kucoin')">❌ Disconnect</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div>
+        <h3 style="color: #58a6ff; margin-bottom: 15px;">Add New Exchange</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <button class="btn" onclick="addExchange('binance')" style="padding: 20px; text-align: center;">
+                <div>🔶 Binance</div>
+                <div style="font-size: 12px; margin-top: 5px;">Add Binance Exchange</div>
+            </button>
+            
+            <button class="btn" onclick="addExchange('okx')" style="padding: 20px; text-align: center;">
+                <div>⭕ OKX</div>
+                <div style="font-size: 12px; margin-top: 5px;">Add OKX Exchange</div>
+            </button>
+            
+            <button class="btn" onclick="addExchange('bybit')" style="padding: 20px; text-align: center;">
+                <div>🟡 Bybit</div>
+                <div style="font-size: 12px; margin-top: 5px;">Add Bybit Exchange</div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Exchange Configuration Modal -->
+<div id="exchange-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 30px; min-width: 400px;">
+        <h3 style="color: #f0f6fc; margin-bottom: 20px;">🔑 Exchange API Configuration</h3>
+        
+        <form id="exchange-config-form">
+            <div style="margin-bottom: 15px;">
+                <label>Exchange:</label>
+                <input type="text" id="exchange-name" readonly style="width: 100%; padding: 8px; margin-top: 5px; background: #21262d; color: #7d8590; border: 1px solid #30363d; border-radius: 4px;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label>API Key:</label>
+                <input type="password" id="api-key" placeholder="Enter your API key" style="width: 100%; padding: 8px; margin-top: 5px; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label>API Secret:</label>
+                <input type="password" id="api-secret" placeholder="Enter your API secret" style="width: 100%; padding: 8px; margin-top: 5px; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Passphrase (if required):</label>
+                <input type="password" id="passphrase" placeholder="Enter passphrase" style="width: 100%; padding: 8px; margin-top: 5px; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: flex; align-items: center;">
+                    <input type="checkbox" id="testnet" style="margin-right: 10px;">
+                    Use Testnet (Sandbox Mode)
+                </label>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button type="button" class="btn" onclick="saveExchangeConfig()" style="background: #238636;">💾 Save</button>
+                <button type="button" class="btn" onclick="closeExchangeModal()">❌ Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Risk Management -->
+<div class="card">
+    <h2>⚠️ Risk Management</h2>
+    <form id="risk-form">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <label>Max Position Size ($):</label>
+                <input type="number" id="max-position" value="1000" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                
+                <label>Max Daily Loss ($):</label>
+                <input type="number" id="max-daily-loss" value="500" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                
+                <label>Max Open Positions:</label>
+                <input type="number" id="max-positions" value="10" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+            </div>
+            
+            <div>
+                <label>Stop Loss (%):</label>
+                <input type="number" id="stop-loss" value="5" step="0.1" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                
+                <label>Take Profit (%):</label>
+                <input type="number" id="take-profit" value="15" step="0.1" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                
+                <label style="display: flex; align-items: center; margin-top: 20px;">
+                    <input type="checkbox" id="trailing-stop" checked style="margin-right: 10px;">
+                    Enable Trailing Stop
+                </label>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn" style="background: #da3633;">⚠️ Save Risk Settings</button>
+    </form>
+</div>
+
+<!-- Notifications -->
+<div class="card">
+    <h2>🔔 Notification Settings</h2>
+    <form id="notifications-form">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h4 style="color: #58a6ff; margin-bottom: 15px;">Telegram Notifications</h4>
+                
+                <label>Bot Token:</label>
+                <input type="password" id="telegram-token" placeholder="Bot token from @BotFather" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                
+                <label>Chat ID:</label>
+                <input type="text" id="telegram-chat" placeholder="Your Telegram chat ID" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+            </div>
+            
+            <div>
+                <h4 style="color: #58a6ff; margin-bottom: 15px;">Notification Types</h4>
+                
+                <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="checkbox" id="notify-trades" checked style="margin-right: 10px;">
+                    Trade Executions
+                </label>
+                
+                <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="checkbox" id="notify-signals" checked style="margin-right: 10px;">
+                    Trading Signals
+                </label>
+                
+                <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="checkbox" id="notify-alerts" checked style="margin-right: 10px;">
+                    System Alerts
+                </label>
+                
+                <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="checkbox" id="notify-performance" style="margin-right: 10px;">
+                    Daily Performance Reports
+                </label>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn" style="background: #7c3aed;">🔔 Save Notification Settings</button>
+    </form>
+</div>
+
+<script>
+// Account form submission
+document.getElementById('account-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Account settings saved successfully!');
+});
+
+// Risk form submission
+document.getElementById('risk-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Risk management settings saved successfully!');
+});
+
+// Notifications form submission
+document.getElementById('notifications-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Notification settings saved successfully!');
+});
+
+// Exchange functions
+function addExchange(exchangeName) {
+    document.getElementById('exchange-name').value = exchangeName;
+    document.getElementById('exchange-modal').style.display = 'block';
+}
+
+function configureExchange(exchangeName) {
+    document.getElementById('exchange-name').value = exchangeName;
+    document.getElementById('exchange-modal').style.display = 'block';
+}
+
+function disconnectExchange(exchangeName) {
+    if (confirm(`Are you sure you want to disconnect ${exchangeName}?`)) {
+        alert(`${exchangeName} disconnected successfully`);
+    }
+}
+
+function closeExchangeModal() {
+    document.getElementById('exchange-modal').style.display = 'none';
+    document.getElementById('exchange-config-form').reset();
+}
+
+function saveExchangeConfig() {
+    const exchangeName = document.getElementById('exchange-name').value;
+    const apiKey = document.getElementById('api-key').value;
+    const apiSecret = document.getElementById('api-secret').value;
+    
+    if (!apiKey || !apiSecret) {
+        alert('Please enter both API key and secret');
+        return;
+    }
+    
+    alert(`${exchangeName} exchange configured successfully!`);
+    closeExchangeModal();
+}
+
+// Close modal when clicking outside
+document.getElementById('exchange-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeExchangeModal();
+    }
+});
+</script>
+{% endblock %}

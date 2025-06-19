@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Strategies - Trading Bot{% endblock %}
+
+{% block content %}
+<div class="grid">
+    <!-- Active Strategy -->
+    <div class="card">
+        <h2>🧠 Current Strategy</h2>
+        <div style="margin-bottom: 15px;">
+            <p><strong>Name:</strong> Simple Buy/Sell</p>
+            <p><strong>Status:</strong> <span class="status running">ACTIVE</span></p>
+            <p><strong>Symbol:</strong> BTC/USDT</p>
+            <p><strong>Timeframe:</strong> 1h</p>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn" onclick="stopStrategy()">⏹️ Stop</button>
+            <button class="btn" onclick="configureStrategy()">⚙️ Configure</button>
+        </div>
+    </div>
+    
+    <!-- Strategy Performance -->
+    <div class="card">
+        <h2>📊 Performance</h2>
+        <p>Total Trades: <strong>45</strong></p>
+        <p>Win Rate: <strong style="color: #238636;">62%</strong></p>
+        <p>Total P&L: <strong style="color: #238636;">+$1,250</strong></p>
+        <p>Best Trade: <strong>+$245</strong></p>
+        <p>Max Drawdown: <strong style="color: #da3633;">-5.2%</strong></p>
+    </div>
+</div>
+
+<!-- Strategy Selection -->
+<div class="card">
+    <h2>🎯 Available Strategies</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        
+        <div style="border: 1px solid #30363d; border-radius: 8px; padding: 15px;">
+            <h3 style="color: #58a6ff; margin-bottom: 10px;">📈 Simple Buy/Sell</h3>
+            <p style="font-size: 14px; margin-bottom: 15px;">Buy when price drops, sell when target reached</p>
+            <div style="margin-bottom: 15px;">
+                <p><strong>Buy Threshold:</strong> -5%</p>
+                <p><strong>Sell Threshold:</strong> +10%</p>
+                <p><strong>Timeframe:</strong> 1h</p>
+            </div>
+            <button class="btn" onclick="selectStrategy('simple_buy_sell')" style="width: 100%;">✅ Active</button>
+        </div>
+        
+        <div style="border: 1px solid #30363d; border-radius: 8px; padding: 15px;">
+            <h3 style="color: #58a6ff; margin-bottom: 10px;">⚡ Grid Trading</h3>
+            <p style="font-size: 14px; margin-bottom: 15px;">Multiple buy/sell orders in a grid pattern</p>
+            <div style="margin-bottom: 15px;">
+                <p><strong>Grid Levels:</strong> 10</p>
+                <p><strong>Spacing:</strong> 1%</p>
+                <p><strong>Amount:</strong> $100/level</p>
+            </div>
+            <button class="btn" onclick="selectStrategy('grid_trading')" style="width: 100%; opacity: 0.6;">🔄 Select</button>
+        </div>
+        
+        <div style="border: 1px solid #30363d; border-radius: 8px; padding: 15px;">
+            <h3 style="color: #58a6ff; margin-bottom: 10px;">🎯 RSI Strategy</h3>
+            <p style="font-size: 14px; margin-bottom: 15px;">Buy on RSI oversold, sell on overbought</p>
+            <div style="margin-bottom: 15px;">
+                <p><strong>RSI Period:</strong> 14</p>
+                <p><strong>Oversold:</strong> 30</p>
+                <p><strong>Overbought:</strong> 70</p>
+            </div>
+            <button class="btn" onclick="selectStrategy('rsi_strategy')" style="width: 100%; opacity: 0.6;">🔄 Select</button>
+        </div>
+        
+    </div>
+</div>
+
+<!-- Strategy Configuration -->
+<div class="card" id="strategy-config" style="display: none;">
+    <h2>⚙️ Strategy Configuration</h2>
+    <form id="config-form">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <label>Symbol:</label>
+                <select id="config-symbol" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                    <option value="BTC/USDT">BTC/USDT</option>
+                    <option value="ETH/USDT">ETH/USDT</option>
+                    <option value="ADA/USDT">ADA/USDT</option>
+                </select>
+                
+                <label>Timeframe:</label>
+                <select id="config-timeframe" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                    <option value="1m">1 minute</option>
+                    <option value="5m">5 minutes</option>
+                    <option value="15m">15 minutes</option>
+                    <option value="1h" selected>1 hour</option>
+                    <option value="4h">4 hours</option>
+                    <option value="1d">1 day</option>
+                </select>
+            </div>
+            
+            <div>
+                <label>Buy Threshold (%):</label>
+                <input type="number" id="buy-threshold" value="-5" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                
+                <label>Sell Threshold (%):</label>
+                <input type="number" id="sell-threshold" value="10" style="width: 100%; padding: 8px; margin: 5px 0 15px 0; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+            <button type="button" class="btn" onclick="saveConfig()" style="background: #238636;">💾 Save Config</button>
+            <button type="button" class="btn" onclick="cancelConfig()">❌ Cancel</button>
+        </div>
+    </form>
+</div>
+
+<script>
+function selectStrategy(strategyName) {
+    if (confirm(`Switch to ${strategyName} strategy?`)) {
+        alert(`Strategy switched to ${strategyName}`);
+        // Update UI to show new active strategy
+    }
+}
+
+function stopStrategy() {
+    if (confirm('Are you sure you want to stop the current strategy?')) {
+        alert('Strategy stopped');
+    }
+}
+
+function configureStrategy() {
+    document.getElementById('strategy-config').style.display = 'block';
+    document.getElementById('strategy-config').scrollIntoView();
+}
+
+function saveConfig() {
+    const symbol = document.getElementById('config-symbol').value;
+    const timeframe = document.getElementById('config-timeframe').value;
+    const buyThreshold = document.getElementById('buy-threshold').value;
+    const sellThreshold = document.getElementById('sell-threshold').value;
+    
+    alert(`Strategy configuration saved:\nSymbol: ${symbol}\nTimeframe: ${timeframe}\nBuy: ${buyThreshold}%\nSell: ${sellThreshold}%`);
+    
+    document.getElementById('strategy-config').style.display = 'none';
+}
+
+function cancelConfig() {
+    document.getElementById('strategy-config').style.display = 'none';
+}
+</script>
+{% endblock %}

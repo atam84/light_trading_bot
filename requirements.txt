@@ -76,4 +76,5 @@ requests==2.31.0            # HTTP requests (backup to httpx)
 
 # Optional: ML/AI Features (for future signal analysis)
 # tensorflow==2.15.0
-# scikit-learn==1.3.2
+# scikit-learn==1.3.2Flask==2.3.3
+Flask-CORS==4.0.0

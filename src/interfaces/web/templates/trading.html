@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}Trading - Trading Bot{% endblock %}
+
+{% block content %}
+<div class="grid">
+    <!-- Buy/Sell Orders -->
+    <div class="card">
+        <h2>💹 Place Order</h2>
+        <form id="order-form">
+            <div style="margin-bottom: 15px;">
+                <label>Symbol:</label>
+                <select id="symbol" style="width: 100%; padding: 8px; margin-top: 5px; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                    <option value="BTC/USDT">BTC/USDT</option>
+                    <option value="ETH/USDT">ETH/USDT</option>
+                    <option value="ADA/USDT">ADA/USDT</option>
+                </select>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <button type="button" id="buy-btn" class="btn" style="background: #238636;">🔥 BUY</button>
+                <button type="button" id="sell-btn" class="btn" style="background: #da3633;">💸 SELL</button>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Order Type:</label>
+                <select id="order-type" style="width: 100%; padding: 8px; margin-top: 5px; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                    <option value="market">Market Order</option>
+                    <option value="limit">Limit Order</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Amount (USD):</label>
+                <input type="number" id="amount" placeholder="100" style="width: 100%; padding: 8px; margin-top: 5px; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+            </div>
+            
+            <div id="price-section" style="margin-bottom: 15px; display: none;">
+                <label>Price:</label>
+                <input type="number" id="price" placeholder="42000" style="width: 100%; padding: 8px; margin-top: 5px; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+            </div>
+            
+            <button type="submit" class="btn" style="width: 100%;">📤 Submit Order</button>
+        </form>
+    </div>
+    
+    <!-- Current Price -->
+    <div class="card">
+        <h2>📊 Market Data</h2>
+        <div id="price-info">
+            <p>BTC/USDT: <strong id="current-price">$42,150.00</strong></p>
+            <p>24h Change: <strong style="color: #238636;" id="price-change">+2.5%</strong></p>
+            <p>Volume: <strong id="volume">1,234.56 BTC</strong></p>
+            <p>Last Update: <span id="last-update">Just now</span></p>
+        </div>
+        <div style="margin-top: 15px;">
+            <button class="btn" onclick="refreshPrice()">🔄 Refresh</button>
+        </div>
+    </div>
+</div>
+
+<!-- Open Orders -->
+<div class="card">
+    <h2>📋 Open Orders</h2>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 1px solid #30363d;">
+                    <th style="text-align: left; padding: 10px;">Symbol</th>
+                    <th style="text-align: left; padding: 10px;">Side</th>
+                    <th style="text-align: left; padding: 10px;">Type</th>
+                    <th style="text-align: left; padding: 10px;">Amount</th>
+                    <th style="text-align: left; padding: 10px;">Price</th>
+                    <th style="text-align: left; padding: 10px;">Status</th>
+                    <th style="text-align: left; padding: 10px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="orders-table">
+                <tr>
+                    <td style="padding: 10px;">BTC/USDT</td>
+                    <td style="padding: 10px; color: #238636;">BUY</td>
+                    <td style="padding: 10px;">LIMIT</td>
+                    <td style="padding: 10px;">0.001 BTC</td>
+                    <td style="padding: 10px;">$41,500</td>
+                    <td style="padding: 10px;"><span class="status running">PENDING</span></td>
+                    <td style="padding: 10px;">
+                        <button class="btn" style="padding: 5px 10px; font-size: 12px;" onclick="cancelOrder('1')">❌ Cancel</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Trade History -->
+<div class="card">
+    <h2>📊 Recent Trades</h2>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 1px solid #30363d;">
+                    <th style="text-align: left; padding: 10px;">Time</th>
+                    <th style="text-align: left; padding: 10px;">Symbol</th>
+                    <th style="text-align: left; padding: 10px;">Side</th>
+                    <th style="text-align: left; padding: 10px;">Amount</th>
+                    <th style="text-align: left; padding: 10px;">Price</th>
+                    <th style="text-align: left; padding: 10px;">P&L</th>
+                </tr>
+            </thead>
+            <tbody id="trades-table">
+                <tr>
+                    <td style="padding: 10px;">16:30</td>
+                    <td style="padding: 10px;">BTC/USDT</td>
+                    <td style="padding: 10px; color: #da3633;">SELL</td>
+                    <td style="padding: 10px;">0.001 BTC</td>
+                    <td style="padding: 10px;">$42,200</td>
+                    <td style="padding: 10px; color: #238636;">+$150.00</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;">15:45</td>
+                    <td style="padding: 10px;">BTC/USDT</td>
+                    <td style="padding: 10px; color: #238636;">BUY</td>
+                    <td style="padding: 10px;">0.001 BTC</td>
+                    <td style="padding: 10px;">$42,050</td>
+                    <td style="padding: 10px;">-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Trading functionality
+let currentSide = 'buy';
+
+document.getElementById('buy-btn').addEventListener('click', function() {
+    currentSide = 'buy';
+    this.style.background = '#238636';
+    this.style.opacity = '1';
+    document.getElementById('sell-btn').style.opacity = '0.6';
+});
+
+document.getElementById('sell-btn').addEventListener('click', function() {
+    currentSide = 'sell';
+    this.style.background = '#da3633';
+    this.style.opacity = '1';
+    document.getElementById('buy-btn').style.opacity = '0.6';
+});
+
+document.getElementById('order-type').addEventListener('change', function() {
+    const priceSection = document.getElementById('price-section');
+    if (this.value === 'limit') {
+        priceSection.style.display = 'block';
+    } else {
+        priceSection.style.display = 'none';
+    }
+});
+
+document.getElementById('order-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const symbol = document.getElementById('symbol').value;
+    const orderType = document.getElementById('order-type').value;
+    const amount = document.getElementById('amount').value;
+    const price = document.getElementById('price').value;
+    
+    if (!amount) {
+        alert('Please enter amount');
+        return;
+    }
+    
+    // Simulate order placement
+    alert(`${currentSide.toUpperCase()} order placed for ${amount} USD of ${symbol}`);
+    
+    // Add to orders table (simulation)
+    addOrderToTable(symbol, currentSide, orderType, amount, price);
+});
+
+function addOrderToTable(symbol, side, type, amount, price) {
+    const table = document.getElementById('orders-table');
+    const row = table.insertRow(0);
+    const sideColor = side === 'buy' ? '#238636' : '#da3633';
+    
+    row.innerHTML = `
+        <td style="padding: 10px;">${symbol}</td>
+        <td style="padding: 10px; color: ${sideColor};">${side.toUpperCase()}</td>
+        <td style="padding: 10px;">${type.toUpperCase()}</td>
+        <td style="padding: 10px;">${amount} USD</td>
+        <td style="padding: 10px;">${price || 'MARKET'}</td>
+        <td style="padding: 10px;"><span class="status running">PENDING</span></td>
+        <td style="padding: 10px;">
+            <button class="btn" style="padding: 5px 10px; font-size: 12px;" onclick="cancelOrder('${Date.now()}')">❌ Cancel</button>
+        </td>
+    `;
+}
+
+function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order?')) {
+        alert('Order cancelled');
+        // Remove row logic here
+    }
+}
+
+function refreshPrice() {
+    // Simulate price update
+    const prices = [41800, 42150, 42500, 41950, 42300];
+    const newPrice = prices[Math.floor(Math.random() * prices.length)];
+    document.getElementById('current-price').textContent = `$${newPrice.toLocaleString()}.00`;
+    document.getElementById('last-update').textContent = 'Just now';
+}
+
+// Auto-refresh price every 30 seconds
+setInterval(refreshPrice, 30000);
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Trading Bot{% endblock %}
+
+{% block content %}
+<div class="grid">
+    <div class="card">
+        <h2>🚀 Bot Status</h2>
+        <p>Status: <span class="status running">RUNNING</span></p>
+        <p>Mode: Paper Trading</p>
+        <p>Strategy: Simple Buy/Sell</p>
+        <p>Symbol: BTC/USDT</p>
+        <div style="margin-top: 15px;">
+            <button class="btn">▶️ Start</button>
+            <button class="btn danger">⏹️ Stop</button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>💰 Portfolio</h2>
+        <p>Total Balance: <strong>$10,000.00</strong></p>
+        <p>Available: <strong>$9,500.00</strong></p>
+        <p>In Use: <strong>$500.00</strong></p>
+        <p>P&L Today: <strong style="color: #238636;">+$25.50</strong></p>
+    </div>
+    
+    <div class="card">
+        <h2>📊 Active Trades</h2>
+        <p>Open Positions: <strong>1</strong></p>
+        <p>BTC/USDT: <strong>0.001 BTC</strong></p>
+        <p>Entry Price: <strong>$42,000</strong></p>
+        <p>Current P&L: <strong style="color: #238636;">+$150</strong></p>
+    </div>
+    
+    <div class="card">
+        <h2>📈 Performance</h2>
+        <p>Total Trades: <strong>45</strong></p>
+        <p>Win Rate: <strong>62%</strong></p>
+        <p>Best Trade: <strong>+$245</strong></p>
+        <p>Worst Trade: <strong>-$85</strong></p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>📊 Recent Activity</h2>
+    <div id="activity-log">
+        <p>• 16:35 - BUY signal detected for BTC/USDT</p>
+        <p>• 16:30 - Market data updated</p>
+        <p>• 16:25 - Strategy evaluation completed</p>
+        <p>• 16:20 - Risk check passed</p>
+    </div>
+</div>
+{% endblock %}
