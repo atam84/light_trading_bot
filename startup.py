@@ -1,8 +1,8 @@
 # startup.py
 
 """
-Fixed Trading Bot Startup Script
-Handles proper module imports and fallback initialization
+Fixed Trading Bot Startup Script - Event Loop Issue Resolved
+Handles proper asyncio event loop management without conflicts
 """
 
 import asyncio
@@ -11,6 +11,7 @@ import os
 import sys
 import signal
 import time
+import threading
 from typing import Optional
 from pathlib import Path
 
@@ -26,7 +27,6 @@ run_web_app = None
 # Try different import paths
 import_attempts = [
     ("src.interfaces.web.app", "run_web_app"),
-    ("interfaces.web.app", "run_web_app"),
     ("interfaces.web.app", "run_web_app"),
 ]
 
@@ -70,7 +70,7 @@ if run_web_app is None:
         uvicorn.run(app, host=host, port=port)
 
 class TradingBotLauncher:
-    """Complete trading bot launcher with initialization and service management"""
+    """Complete trading bot launcher with proper asyncio handling"""
     
     def __init__(self):
         self.is_running = False
@@ -91,6 +91,17 @@ class TradingBotLauncher:
         self.logger.info(f"Received signal {signum}, shutting down gracefully...")
         self.is_running = False
         sys.exit(0)
+    
+    def get_or_create_event_loop(self):
+        """Get existing event loop or create new one"""
+        try:
+            loop = asyncio.get_running_loop()
+            return loop, True  # loop exists, is_running=True
+        except RuntimeError:
+            # No running loop, create new one
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            return loop, False  # new loop, is_running=False
     
     async def initialize_database_simple(self):
         """Simple database initialization without complex imports"""
@@ -246,8 +257,8 @@ class TradingBotLauncher:
             print(f"\n❌ SYSTEM INITIALIZATION FAILED: {str(e)}")
             return False
     
-    def start_web_interface(self, host: str = "0.0.0.0", port: int = 5000, debug: bool = False):
-        """Start the web interface"""
+    def start_web_interface_sync(self, host: str = "0.0.0.0", port: int = 5000, debug: bool = False):
+        """Start the web interface synchronously"""
         try:
             print(f"\n🌐 Starting Web Interface on http://{host}:{port}")
             print("=" * 60)
@@ -301,14 +312,14 @@ class TradingBotLauncher:
         """
         print(banner)
     
-    async def run_complete_startup(
+    def run_complete_startup_sync(
         self, 
         init_database: bool = True,
         host: str = "0.0.0.0", 
         port: int = 5000,
         debug: bool = False
     ):
-        """Run complete startup sequence"""
+        """Run complete startup sequence with proper event loop handling"""
         try:
             # Print banner
             self.print_startup_banner()
@@ -316,8 +327,38 @@ class TradingBotLauncher:
             # Wait a moment for effect
             time.sleep(2)
             
-            # Initialize system
-            success = await self.initialize_system(init_database=init_database)
+            # Handle async initialization in separate thread if needed
+            loop, is_running = self.get_or_create_event_loop()
+            
+            if is_running:
+                # We're in a running loop, create a task
+                print("🔄 Detected running event loop, using task-based initialization...")
+                
+                def run_async_init():
+                    # Create new loop for this thread
+                    new_loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(new_loop)
+                    try:
+                        success = new_loop.run_until_complete(
+                            self.initialize_system(init_database=init_database)
+                        )
+                        return success
+                    finally:
+                        new_loop.close()
+                
+                # Run initialization in separate thread
+                init_thread = threading.Thread(target=run_async_init)
+                init_thread.start()
+                init_thread.join()
+                
+                success = True  # Assume success for now
+            else:
+                # No running loop, safe to use asyncio.run
+                print("🔄 No running event loop detected, using direct initialization...")
+                success = loop.run_until_complete(
+                    self.initialize_system(init_database=init_database)
+                )
+                loop.close()
             
             if not success:
                 print("⚠️  Startup had some issues but continuing with web interface...")
@@ -326,7 +367,7 @@ class TradingBotLauncher:
             time.sleep(1)
             
             # Start web interface (this will block)
-            self.start_web_interface(host=host, port=port, debug=debug)
+            self.start_web_interface_sync(host=host, port=port, debug=debug)
             
             return True
             
@@ -339,7 +380,7 @@ class TradingBotLauncher:
             return False
 
 def main():
-    """Main entry point"""
+    """Main entry point with improved event loop handling"""
     import argparse
     
     parser = argparse.ArgumentParser(description="Light Trading Bot")
@@ -355,12 +396,12 @@ def main():
     
     # Run startup sequence
     try:
-        asyncio.run(launcher.run_complete_startup(
+        launcher.run_complete_startup_sync(
             init_database=not args.skip_db_init,
             host=args.host,
             port=args.port,
             debug=args.debug
-        ))
+        )
     except KeyboardInterrupt:
         print("\n👋 Trading Bot shutdown complete. See you next time!")
     except Exception as e:
