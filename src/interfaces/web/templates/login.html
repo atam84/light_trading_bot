@@ -1,0 +1,440 @@
+<!-- src/interfaces/web/templates/login.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Light Trading Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .demo-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+            text-align: center;
+        }
+
+        .demo-btn {
+            background: #10b981;
+            margin-top: 10px;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #059669;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .register-link a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .features-list {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .features-list h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .features-list ul {
+            list-style: none;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .features-list li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .features-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🤖 Trading Bot</h1>
+            <p>Advanced trading with real-time execution</p>
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+        <div id="success-message" class="success-message"></div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn" id="login-btn">
+                <span id="login-text">Sign In</span>
+                <div id="login-spinner" class="loading-spinner"></div>
+            </button>
+        </form>
+
+        <div class="demo-section">
+            <p style="color: #666; margin-bottom: 10px;">Try the demo account:</p>
+            <button type="button" class="btn demo-btn" id="demo-btn">
+                <span id="demo-text">Login as Demo User</span>
+                <div id="demo-spinner" class="loading-spinner"></div>
+            </button>
+            <p style="color: #888; font-size: 12px; margin-top: 8px;">
+                Username: demo | Password: demo123
+            </p>
+        </div>
+
+        <div class="features-list">
+            <h3>🚀 Features Available:</h3>
+            <ul>
+                <li>Real-time market data integration</li>
+                <li>Live trading with KuCoin exchange</li>
+                <li>Paper trading for safe testing</li>
+                <li>Advanced backtesting engine</li>
+                <li>Strategy management system</li>
+                <li>Risk management controls</li>
+                <li>Portfolio tracking & P&L analysis</li>
+            </ul>
+        </div>
+
+        <div class="register-link">
+            <p>Don't have an account? <a href="#" id="register-link">Create one here</a></p>
+        </div>
+    </div>
+
+    <script>
+        class LoginManager {
+            constructor() {
+                this.setupEventListeners();
+                this.checkExistingAuth();
+            }
+
+            setupEventListeners() {
+                const loginForm = document.getElementById('login-form');
+                const demoBtn = document.getElementById('demo-btn');
+                const registerLink = document.getElementById('register-link');
+
+                loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+                demoBtn.addEventListener('click', () => this.handleDemoLogin());
+                registerLink.addEventListener('click', (e) => this.handleRegister(e));
+            }
+
+            checkExistingAuth() {
+                const token = localStorage.getItem('access_token');
+                if (token) {
+                    // Validate token
+                    this.validateToken(token);
+                }
+            }
+
+            async validateToken(token) {
+                try {
+                    const response = await fetch('/auth/validate-token', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        // Token is valid, redirect to dashboard
+                        window.location.href = '/';
+                    } else {
+                        // Token is invalid, remove it
+                        localStorage.removeItem('access_token');
+                    }
+                } catch (error) {
+                    console.error('Token validation failed:', error);
+                    localStorage.removeItem('access_token');
+                }
+            }
+
+            async handleLogin(event) {
+                event.preventDefault();
+
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                if (!username || !password) {
+                    this.showError('Please enter both username and password');
+                    return;
+                }
+
+                this.setLoadingState('login', true);
+
+                try {
+                    const response = await fetch('/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Store token
+                        localStorage.setItem('access_token', data.access_token);
+                        
+                        this.showSuccess('Login successful! Redirecting...');
+                        
+                        // Redirect after short delay
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1000);
+                    } else {
+                        this.showError(data.detail || 'Login failed');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.showError('Network error. Please try again.');
+                } finally {
+                    this.setLoadingState('login', false);
+                }
+            }
+
+            async handleDemoLogin() {
+                this.setLoadingState('demo', true);
+
+                try {
+                    // First create demo user if it doesn't exist
+                    await fetch('/auth/create-demo-user', {
+                        method: 'POST'
+                    });
+
+                    // Then login with demo credentials
+                    const response = await fetch('/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username: 'demo',
+                            password: 'demo123'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        localStorage.setItem('access_token', data.access_token);
+                        this.showSuccess('Demo login successful! Redirecting...');
+                        
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1000);
+                    } else {
+                        this.showError(data.detail || 'Demo login failed');
+                    }
+                } catch (error) {
+                    console.error('Demo login error:', error);
+                    this.showError('Demo login failed. Please try again.');
+                } finally {
+                    this.setLoadingState('demo', false);
+                }
+            }
+
+            handleRegister(event) {
+                event.preventDefault();
+                alert('Registration feature coming soon! For now, use the demo account to explore all features.');
+            }
+
+            setLoadingState(type, loading) {
+                const btn = document.getElementById(`${type}-btn`);
+                const text = document.getElementById(`${type}-text`);
+                const spinner = document.getElementById(`${type}-spinner`);
+
+                if (loading) {
+                    btn.disabled = true;
+                    text.style.display = 'none';
+                    spinner.style.display = 'block';
+                } else {
+                    btn.disabled = false;
+                    text.style.display = 'inline';
+                    spinner.style.display = 'none';
+                }
+            }
+
+            showError(message) {
+                const errorEl = document.getElementById('error-message');
+                const successEl = document.getElementById('success-message');
+                
+                successEl.style.display = 'none';
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    errorEl.style.display = 'none';
+                }, 5000);
+            }
+
+            showSuccess(message) {
+                const errorEl = document.getElementById('error-message');
+                const successEl = document.getElementById('success-message');
+                
+                errorEl.style.display = 'none';
+                successEl.textContent = message;
+                successEl.style.display = 'block';
+
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    successEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Initialize login manager when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new LoginManager();
+        });
+    </script>
+</body>
+</html>

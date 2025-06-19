@@ -10,8 +10,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    apt-get update --allow-insecure-repositories || true
+
+# Fix potential GPG errors on Debian Bookworm
+RUN apt-get -o Acquire::AllowInsecureRepositories=true update && apt-get -o Acquire::AllowInsecureRepositories=true install -y --no-install-recommends \
+    gnupg \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+
 # Install system dependencies for building
-RUN apt-get update && apt-get install -y \
+RUN apt-get -o Acquire::AllowInsecureRepositories=true update && apt-get -o Acquire::AllowInsecureRepositories=true install -y \
     gcc \
     g++ \
     make \
@@ -27,8 +38,17 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt  && \
-    pip install Flask Flask-CORS
+    pip install -r requirements.txt
+
+# Install additional dependencies for trading interface
+RUN pip install --no-cache-dir \
+    python-jose[cryptography]==3.3.0 \
+    passlib[bcrypt]==1.7.4 \
+    python-multipart==0.0.6 \
+    aiohttp==3.9.1 \
+    jinja2==3.1.2 \
+    pytest-asyncio==0.21.1 \
+    httpx==0.25.2
 
 # Production stage
 FROM python:3.10-slim as production
@@ -40,8 +60,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH"
 
 # Install runtime dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    apt-get update --allow-insecure-repositories || true
+RUN apt-get -o Acquire::AllowInsecureRepositories=true update && apt-get -o Acquire::AllowInsecureRepositories=true install -y \
     curl \
+    net-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy virtual environment from builder stage
@@ -61,6 +84,7 @@ RUN mkdir -p /app/{src,logs,data,config} && \
 COPY --chown=trader:trader src/ ./src/
 COPY --chown=trader:trader config/ ./config/
 COPY --chown=trader:trader config.yaml .env.example ./
+COPY --chown=trader:trader startup.py ./startup.py
 
 # Copy configuration files
 COPY --chown=trader:trader docker/entrypoint.sh /entrypoint.sh
@@ -82,5 +106,13 @@ USER trader
 # Set entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
 
+
 # Default command
-CMD ["python", "src/main.py", "start", "--mode", "paper"]
+#CMD ["python", "src/main.py", "start", "--mode", "paper"]
+
+# Use startup.py as the main entry point
+CMD ["python", "startup.py", "--host", "0.0.0.0", "--port", "5000"]
+
+
+
+

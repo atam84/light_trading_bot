@@ -12,6 +12,7 @@ config/local.yaml
 config/production.yaml
 
 backup_*/
+tempo/
 
 # Python
 __pycache__/
