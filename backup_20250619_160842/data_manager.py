@@ -46,7 +46,16 @@ class DataManager:
         self.logger.info("Data manager initialized")
     
     async def get_latest_data(self, symbol: str = "BTC/USDT", interval: str = "1h") -> Optional[MarketData]:
-        """Get the latest market data for a symbol."""
+        """
+        Get the latest market data for a symbol.
+        
+        Args:
+            symbol: Trading symbol
+            interval: Time interval
+            
+        Returns:
+            MarketData: Latest market data or None if failed
+        """
         try:
             # Check cache first
             cache_key = f"{symbol}_{interval}"
@@ -66,9 +75,50 @@ class DataManager:
             self.logger.error(f"Error getting latest data for {symbol}: {e}")
             return None
     
-    async def _fetch_market_data(self, symbol: str, interval: str, limit: int = 100) -> List[MarketData]:
-        """Fetch market data (simulated for now)."""
+    async def get_historical_data(self, symbol: str = "BTC/USDT", interval: str = "1h", limit: int = 100) -> List[MarketData]:
+        """
+        Get historical market data for a symbol.
+        
+        Args:
+            symbol: Trading symbol
+            interval: Time interval  
+            limit: Number of data points
+            
+        Returns:
+            List[MarketData]: Historical market data
+        """
         try:
+            # Check cache first
+            cache_key = f"{symbol}_{interval}"
+            if self._is_cache_valid(cache_key):
+                cached_data = self.market_data_cache.get(cache_key, [])
+                if len(cached_data) >= limit:
+                    return cached_data[-limit:]  # Return latest N points
+            
+            # Fetch new data
+            data = await self._fetch_market_data(symbol, interval, limit)
+            return data
+            
+        except Exception as e:
+            self.logger.error(f"Error getting historical data for {symbol}: {e}")
+            return []
+    
+    async def _fetch_market_data(self, symbol: str, interval: str, limit: int = 100) -> List[MarketData]:
+        """
+        Fetch market data from ccxt-gateway.
+        
+        Args:
+            symbol: Trading symbol
+            interval: Time interval
+            limit: Number of data points
+            
+        Returns:
+            List[MarketData]: Market data
+        """
+        try:
+            # For now, return simulated data since we need to implement HTTP client
+            # In real implementation, this would call ccxt-gateway API
+            
             self.logger.info(f"Fetching market data: {symbol} {interval} (limit: {limit})")
             
             # Simulate market data
@@ -152,3 +202,88 @@ class DataManager:
         
         time_since_update = datetime.utcnow() - self.last_update[cache_key]
         return time_since_update < self.cache_duration
+    
+    async def get_indicators(self, symbol: str = "BTC/USDT", interval: str = "1h") -> Dict[str, Any]:
+        """
+        Get technical indicators for a symbol.
+        
+        Args:
+            symbol: Trading symbol
+            interval: Time interval
+            
+        Returns:
+            Dict: Technical indicators
+        """
+        try:
+            # Get latest data point
+            latest_data = await self.get_latest_data(symbol, interval)
+            if latest_data and latest_data.indicators:
+                return latest_data.indicators
+            
+            # Return default indicators if no data
+            return {
+                'rsi': 50.0,
+                'ema12': 50000.0,
+                'ema26': 50000.0,
+                'macd': 0.0
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error getting indicators for {symbol}: {e}")
+            return {}
+    
+    async def get_ticker(self, symbol: str = "BTC/USDT") -> Dict[str, Any]:
+        """
+        Get ticker information for a symbol.
+        
+        Args:
+            symbol: Trading symbol
+            
+        Returns:
+            Dict: Ticker information
+        """
+        try:
+            latest_data = await self.get_latest_data(symbol)
+            if latest_data:
+                return {
+                    'symbol': symbol,
+                    'price': latest_data.close,
+                    'high24h': latest_data.high,
+                    'low24h': latest_data.low,
+                    'volume24h': latest_data.volume,
+                    'timestamp': latest_data.timestamp.isoformat()
+                }
+            
+            return {}
+            
+        except Exception as e:
+            self.logger.error(f"Error getting ticker for {symbol}: {e}")
+            return {}
+    
+    def clear_cache(self, symbol: str = None):
+        """Clear data cache."""
+        if symbol:
+            # Clear cache for specific symbol
+            keys_to_remove = [key for key in self.market_data_cache.keys() if key.startswith(symbol)]
+            for key in keys_to_remove:
+                del self.market_data_cache[key]
+                if key in self.last_update:
+                    del self.last_update[key]
+            self.logger.info(f"Cache cleared for {symbol}")
+        else:
+            # Clear all cache
+            self.market_data_cache.clear()
+            self.last_update.clear()
+            self.logger.info("All cache cleared")
+    
+    def get_cache_status(self) -> Dict[str, Any]:
+        """Get cache status information."""
+        total_data_points = sum(len(data) for data in self.market_data_cache.values())
+        
+        return {
+            'cached_symbols': len(self.market_data_cache),
+            'total_data_points': total_data_points,
+            'cache_keys': list(self.market_data_cache.keys()),
+            'last_updates': {key: timestamp.isoformat() for key, timestamp in self.last_update.items()}
+        }
+    

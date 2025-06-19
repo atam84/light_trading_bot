@@ -50,3 +50,14 @@ class StrategyManager:
         except Exception as e:
             self.logger.error(f"Error processing signals: {e}")
             return []
+    
+    def get_active_strategies(self):
+        """Get list of active strategies."""
+        return self.active_strategies if self.loaded_strategy else []
+    
+    def get_strategy_status(self):
+        """Get strategy manager status."""
+        return {
+            'loaded_strategy': self.loaded_strategy,
+            'active_count': len(self.active_strategies)
+        }
