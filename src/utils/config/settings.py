@@ -3,6 +3,7 @@
 Settings and configuration management for the trading bot.
 """
 import os
+import yaml
 from dataclasses import dataclass
 from typing import Optional
 from pathlib import Path
@@ -27,15 +28,37 @@ class Settings:
     ENVIRONMENT: str = os.getenv('ENVIRONMENT', 'development')
     DEBUG: bool = os.getenv('DEBUG', 'true').lower() == 'true'
     LOG_LEVEL: str = os.getenv('LOG_LEVEL', 'INFO')
+    LOG_FORMAT: str = os.getenv('LOG_FORMAT', 'detailed')
+    LOG_FILE: str = os.getenv('LOG_FILE', 'logs/trading_bot.log')
     
     # Trading defaults
-    DEFAULT_MODE: str = os.getenv('DEFAULT_MODE', 'paper')
+    DEFAULT_TRADING_MODE: str = os.getenv('DEFAULT_TRADING_MODE', 'paper')
     DEFAULT_EXCHANGE: str = os.getenv('DEFAULT_EXCHANGE', 'kucoin')
     
-    @classmethod
-    def load(cls) -> 'Settings':
-        """Load settings from environment variables."""
-        return cls()
+    def __init__(self, config_file: Optional[str] = None, env_file: Optional[str] = None):
+        """Initialize settings from config file and environment variables."""
+        
+        # Load from config file if provided
+        if config_file and Path(config_file).exists():
+            try:
+                with open(config_file, 'r') as f:
+                    config_data = yaml.safe_load(f)
+                    # Apply config values (this is simplified - you can enhance this)
+                    for key, value in config_data.items():
+                        if hasattr(self, key.upper()):
+                            setattr(self, key.upper(), value)
+            except Exception as e:
+                print(f"Warning: Could not load config file {config_file}: {e}")
+        
+        # Load environment variables (they override config file)
+        for field_name, field in self.__dataclass_fields__.items():
+            env_value = os.getenv(field_name)
+            if env_value is not None:
+                # Convert string env vars to appropriate types
+                if field.type == bool:
+                    setattr(self, field_name, env_value.lower() in ('true', '1', 'yes'))
+                else:
+                    setattr(self, field_name, env_value)
     
     def validate(self) -> bool:
         """Validate required settings."""
@@ -46,5 +69,7 @@ class Settings:
                 return False
         return True
 
-# Global settings instance
-settings = Settings.load()
+# For backward compatibility
+def load_settings() -> Settings:
+    """Load settings instance."""
+    return Settings()

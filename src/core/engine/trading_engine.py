@@ -65,9 +65,9 @@ class TradingEngine:
     Supports multiple trading modes and provides event-driven architecture.
     """
     
-    def __init__(self, config: Dict[str, Any]):
-        self.config = config
-        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+    def __init__(self, settings, logger):
+        self.settings = settings
+        self.logger = logger
         
         # Engine state
         self._state = EngineState.CREATED
