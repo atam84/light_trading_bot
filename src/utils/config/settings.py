@@ -4,8 +4,8 @@ Settings and configuration management for the trading bot.
 """
 import os
 import yaml
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, fields
+from typing import Optional, Any
 from pathlib import Path
 
 @dataclass
@@ -51,14 +51,38 @@ class Settings:
                 print(f"Warning: Could not load config file {config_file}: {e}")
         
         # Load environment variables (they override config file)
-        for field_name, field in self.__dataclass_fields__.items():
-            env_value = os.getenv(field_name)
+        for field in fields(self):
+            env_value = os.getenv(field.name)
             if env_value is not None:
                 # Convert string env vars to appropriate types
                 if field.type == bool:
-                    setattr(self, field_name, env_value.lower() in ('true', '1', 'yes'))
+                    setattr(self, field.name, env_value.lower() in ('true', '1', 'yes'))
                 else:
-                    setattr(self, field_name, env_value)
+                    setattr(self, field.name, env_value)
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        """Dictionary-like get method for compatibility."""
+        return getattr(self, key, default)
+    
+    def __getitem__(self, key: str) -> Any:
+        """Dictionary-like access."""
+        return getattr(self, key)
+    
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Dictionary-like assignment."""
+        setattr(self, key, value)
+    
+    def __contains__(self, key: str) -> bool:
+        """Dictionary-like 'in' operator."""
+        return hasattr(self, key)
+    
+    def keys(self):
+        """Return all setting keys."""
+        return [field.name for field in fields(self)]
+    
+    def items(self):
+        """Return all setting key-value pairs."""
+        return [(field.name, getattr(self, field.name)) for field in fields(self)]
     
     def validate(self) -> bool:
         """Validate required settings."""

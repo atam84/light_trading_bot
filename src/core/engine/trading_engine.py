@@ -95,7 +95,7 @@ class TradingEngine:
         self._pause_event = threading.Event()
         self._main_loop_task: Optional[asyncio.Task] = None
         
-        self.logger.info(f"Trading engine created with config: {self.config.get('name', 'default')}")
+        self.logger.info(f"Trading engine created with config: {self.settings.get('name', 'default')}")
     
     # State Management
     def get_state(self) -> EngineState:
@@ -420,7 +420,7 @@ class TradingEngine:
         required_config = ['name', 'mode']
         
         for key in required_config:
-            if key not in self.config:
+            if key not in self.settings:
                 self.logger.error(f"Missing required configuration: {key}")
                 return False
         
