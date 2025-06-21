@@ -1,4 +1,4 @@
-# Dockerfile
+# Dockerfile (FIXED - Remove problematic entrypoint)
 # Multi-stage build for optimized production image
 
 # Build stage
@@ -86,9 +86,9 @@ COPY --chown=trader:trader config/ ./config/
 COPY --chown=trader:trader config.yaml .env.example ./
 COPY --chown=trader:trader startup.py ./startup.py
 
-# Copy configuration files
-COPY --chown=trader:trader docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# REMOVED: Problematic entrypoint.sh copy and setup
+# COPY --chown=trader:trader docker/entrypoint.sh /entrypoint.sh
+# RUN chmod +x /entrypoint.sh
 
 # Create volume mount points
 VOLUME ["/app/logs", "/app/data", "/app/config"]
@@ -97,22 +97,15 @@ VOLUME ["/app/logs", "/app/data", "/app/config"]
 EXPOSE 5000 8000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:5000/health || exit 1
 
 # Switch to non-root user
 USER trader
 
-# Set entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
+# REMOVED: Problematic entrypoint
+# ENTRYPOINT ["/entrypoint.sh"]
 
-
-# Default command
-#CMD ["python", "src/main.py", "start", "--mode", "paper"]
-
-# Use startup.py as the main entry point
+# FIXED: Use startup.py directly (no dual process)
 CMD ["python", "startup.py", "--host", "0.0.0.0", "--port", "5000"]
-
-
-
 

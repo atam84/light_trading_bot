@@ -1,4 +1,4 @@
-# docker-compose.yml
+# docker-compose.yml (FIXED VERSION)
 
 services:
   # Trading Bot Application
@@ -9,15 +9,15 @@ services:
       - "5000:5000"  # Web UI
       - "8000:8000"  # API (optional)
     environment:
-      # Database
-      - MONGODB_URL=mongodb://mongodb:27017/trading_bot
+      # Database (FIXED - matching passwords and authSource)
+      - MONGODB_URL=mongodb://trader:secure_trading_password@mongodb:27017/trading_bot?authSource=admin
       - MONGO_USERNAME=trader
       - MONGO_PASSWORD=secure_trading_password
       
       # External Services (internal Docker network)
       - CCXT_GATEWAY_URL=http://ccxt-bridge:3000
       - QUICKCHART_URL=http://quickchart:3400
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://:redis_trading_password@redis:6379/0
       
       # Security
       - SECRET_KEY=your_secret_key_min_32_characters_long
@@ -30,7 +30,6 @@ services:
       - LOG_FILE=logs/trading_bot.log
       - WEB_HOST=0.0.0.0
       - WEB_PORT=5000
-      #- WEB_ONLY=true
       
       # Trading Configuration
       - DEFAULT_EXCHANGE=kucoin
@@ -44,16 +43,17 @@ services:
       - ./data:/app/data
       - ./config:/app/config
     depends_on:
-      - mongodb
-      - ccxt-bridge
-      - quickchart
-      - redis
-    #command: python src/main.py web --port 5000 --host 0.0.0.0
+      mongodb:
+        condition: service_healthy
+      ccxt-bridge:
+        condition: service_healthy
+      quickchart:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - trading-network
 
-  # MongoDB Database
+  # MongoDB Database (FIXED - Added health check)
   mongodb:
     image: mongo:6.0
     container_name: trading-bot-db_ltb
@@ -67,12 +67,17 @@ services:
     restart: unless-stopped
     networks:
       - trading-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # CCXT Bridge (Your Local Image - Internal Only)
   ccxt-bridge:
     image: mat/ccxt-bridge:latest
     container_name: ccxt-bridge_ltb
-    # No external port exposure - only accessible within Docker network
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -103,23 +108,26 @@ services:
     networks:
       - trading-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3400/healthcheck"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3400/healthcheck"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 15s
 
-  # Redis Cache (Optional)
+  # Redis Cache (FIXED - Updated password handling)
   redis:
     image: redis:7-alpine
     container_name: trading-bot-cache
     command: redis-server --appendonly yes --requirepass redis_trading_password
+    environment:
+      - REDIS_PASSWORD=redis_trading_password
     volumes:
       - redis_data:/data
     restart: unless-stopped
     networks:
       - trading-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "redis_trading_password", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
