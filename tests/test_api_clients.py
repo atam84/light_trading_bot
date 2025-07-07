@@ -383,6 +383,17 @@ class TestAPIClientManager:
         with pytest.raises(RuntimeError, match="not initialized"):
             _ = api_manager.charts
 
+    @pytest.mark.asyncio
+    async def test_direct_client_initialization(self, monkeypatch):
+        """Ensure manager can initialize direct ccxt client"""
+        conf = {'api.ccxt_gateway_url': 'http://ccxt', 'api.quickchart_url': 'http://chart', 'api.use_gateway': False}
+        monkeypatch.setattr('src.api_clients.get_config', lambda: conf)
+        manager = APIClientManager()
+        await manager.initialize()
+        from src.api_clients.ccxt_direct import CCXTDirectClient
+        assert isinstance(manager.ccxt, CCXTDirectClient)
+        await manager.close()
+
 @pytest.mark.asyncio
 async def test_convenience_functions():
     """Test convenience functions"""

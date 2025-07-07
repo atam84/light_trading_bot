@@ -19,6 +19,7 @@ class Settings:
     # External services
     CCXT_GATEWAY_URL: str = os.getenv('CCXT_GATEWAY_URL', 'http://ccxt-bridge:3000')
     QUICKCHART_URL: str = os.getenv('QUICKCHART_URL', 'http://quickchart:3400')
+    USE_GATEWAY: bool = os.getenv('USE_GATEWAY', 'true').lower() == 'true'
     
     # Security
     SECRET_KEY: str = os.getenv('SECRET_KEY', 'your-secret-key-here')
