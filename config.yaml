@@ -5,6 +5,9 @@ app:
   name: "Light Trading Bot"
   version: "0.1.0"
   description: "Multi-interface cryptocurrency trading bot"
+
+api:
+  use_gateway: true
   
 trading:
   # Supported trading modes

@@ -15,13 +15,14 @@ from contextlib import asynccontextmanager
 
 from .base_client import BaseHTTPClient, APIResponse, HTTPMethod
 from .ccxt_gateway import (
-    CCXTGatewayClient, 
-    MarketData, 
-    TickerData, 
-    BalanceInfo, 
-    OrderInfo, 
+    CCXTGatewayClient,
+    MarketData,
+    TickerData,
+    BalanceInfo,
+    OrderInfo,
     TradeInfo
 )
+from .ccxt_direct import CCXTDirectClient
 from .quickchart import (
     QuickChartClient, 
     ChartConfig, 
@@ -42,8 +43,9 @@ class APIClientManager:
     with connection management and error handling.
     """
     
-    def __init__(self):
-        self._ccxt_client: Optional[CCXTGatewayClient] = None
+    def __init__(self, use_gateway: Optional[bool] = None):
+        self.use_gateway = use_gateway
+        self._ccxt_client: Optional[BaseHTTPClient] = None
         self._chart_client: Optional[QuickChartClient] = None
         self._initialized = False
     
@@ -54,12 +56,18 @@ class APIClientManager:
         
         try:
             config = get_config()
-            
-            # Initialize ccxt-gateway client
-            self._ccxt_client = CCXTGatewayClient(
-                base_url=config.get('api.ccxt_gateway_url')
-            )
-            
+            use_gateway = self.use_gateway
+            if use_gateway is None:
+                use_gateway = config.get('api.use_gateway', True)
+            self.use_gateway = use_gateway
+
+            if use_gateway:
+                self._ccxt_client = CCXTGatewayClient(
+                    base_url=config.get('api.ccxt_gateway_url')
+                )
+            else:
+                self._ccxt_client = CCXTDirectClient()
+
             # Initialize quickchart client
             self._chart_client = QuickChartClient(
                 base_url=config.get('api.quickchart_url')
@@ -86,8 +94,8 @@ class APIClientManager:
         logger.info("API clients closed")
     
     @property
-    def ccxt(self) -> CCXTGatewayClient:
-        """Get ccxt-gateway client"""
+    def ccxt(self) -> Any:
+        """Get trading client (gateway or direct)"""
         if not self._initialized or not self._ccxt_client:
             raise RuntimeError("API clients not initialized. Call initialize() first.")
         return self._ccxt_client
@@ -278,6 +286,7 @@ __all__ = [
     
     # ccxt-gateway client
     'CCXTGatewayClient',
+    'CCXTDirectClient',
     'MarketData',
     'TickerData',
     'BalanceInfo',
